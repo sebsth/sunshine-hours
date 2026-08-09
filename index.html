@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sunshine Hours</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="layout">
+      <section class="hero panel">
+        <div>
+          <p class="eyebrow">Solar daylight explorer</p>
+          <h1>Sunrise, sunset and daylight by place</h1>
+          <p class="intro">Compare daylight curves across multiple places using computed sunrise and sunset times in Swedish local time.</p>
+          <p class="data-note" id="data-note"></p>
+        </div>
+        <div class="hero-summary" id="dataset-summary"></div>
+      </section>
+
+      <section class="controls panel">
+        <label>
+          Metric
+          <select id="metric-select">
+            <option value="daylight_minutes">Sunshine hours</option>
+            <option value="sun_times">Sunrise + sunset</option>
+          </select>
+        </label>
+        <label>
+          Start date
+          <input id="start-date" type="date" />
+        </label>
+        <label>
+          End date
+          <input id="end-date" type="date" />
+        </label>
+        <label>
+          Theme
+          <select id="theme-select">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <button id="reset-zoom" type="button">Reset zoom</button>
+        <button id="refresh-data" type="button">Recalculate</button>
+      </section>
+
+      <section class="panel places-panel">
+        <div>
+          <h2>Places</h2>
+          <p class="data-note">Select one or more places to overlay their curves. Add more places below.</p>
+        </div>
+        <div id="place-selectors" class="place-selectors"></div>
+        <form id="place-form" class="place-form">
+          <label>
+            City name
+            <input id="place-name" type="text" required />
+          </label>
+          <label>
+            Latitude
+            <input id="place-latitude" type="text" inputmode="decimal" required />
+          </label>
+          <label>
+            Longitude
+            <input id="place-longitude" type="text" inputmode="decimal" required />
+          </label>
+          <button id="save-place" type="submit">Add place</button>
+        </form>
+        <p class="entry-status" id="place-status"></p>
+      </section>
+
+      <section class="panel">
+        <div id="chart" class="chart" aria-label="Sunshine chart"></div>
+        <div class="y-scale-controls">
+          <label>
+            Y-axis stretch
+            <input id="y-scale" type="range" min="1" max="250" value="100" />
+          </label>
+          <span id="y-scale-value">100%</span>
+        </div>
+      </section>
+
+      <section class="stats-grid">
+        <article class="panel">
+          <h2>Selection stats</h2>
+          <div class="stats" id="selection-stats"></div>
+        </article>
+        <article class="panel">
+          <h2>Notes</h2>
+          <div class="notes">
+            <p>Sunrise and sunset are calculated from coordinates, not downloaded from an external service.</p>
+            <p>Displayed times use Swedish local civil time in the `Europe/Stockholm` timezone, including DST.</p>
+            <p>Sunshine hours are derived from the difference between computed sunrise and sunset.</p>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
