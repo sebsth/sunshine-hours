@@ -201,7 +201,7 @@ function drawChart() {
       plot_bgcolor: theme.plot,
       font: { color: theme.text },
       height: getChartHeight(metric),
-      margin: { t: 24, r: 18, b: 56, l: 64 },
+      margin: { t: 24, r: 18, b: 56, l: 92 },
       hovermode: "closest",
       legend: { orientation: "h", x: 0, y: 1.12 },
       xaxis: {
@@ -211,6 +211,8 @@ function drawChart() {
       },
       yaxis: {
         title: metricLabel(metric),
+        titlefont: { size: 14 },
+        title_standoff: 18,
         gridcolor: theme.grid,
         tickmode: "array",
         tickvals: tickValues,
