@@ -1,6 +1,5 @@
 .git
 __pycache__/
 *.pyc
-data/
 *.sqlite-shm
 *.sqlite-wal
