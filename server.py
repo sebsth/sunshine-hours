@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -18,7 +19,14 @@ class AppHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
     def do_GET(self) -> None:
-        if urlparse(self.path).path == "/api/dataset":
+        path = urlparse(self.path).path
+        if path == "/api/health":
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"ok":true}')
+            return
+        if path == "/api/dataset":
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -82,8 +90,10 @@ class AppHandler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    server = ThreadingHTTPServer(("127.0.0.1", 10000), AppHandler)
-    print("Serving Sunshine Hours at http://127.0.0.1:10000")
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "10000"))
+    server = ThreadingHTTPServer((host, port), AppHandler)
+    print(f"Serving Sunshine Hours at http://{host}:{port}")
     server.serve_forever()
 
 
