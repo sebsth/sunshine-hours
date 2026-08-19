@@ -30,11 +30,19 @@
         </label>
         <label>
           Start date
-          <input id="start-date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" spellcheck="false" />
+          <span class="date-field">
+            <input id="start-date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" spellcheck="false" />
+            <button id="start-date-button" type="button" class="date-picker-button">Pick</button>
+            <input id="start-date-picker" type="date" class="date-picker-proxy" tabindex="-1" aria-hidden="true" />
+          </span>
         </label>
         <label>
           End date
-          <input id="end-date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" spellcheck="false" />
+          <span class="date-field">
+            <input id="end-date" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" autocomplete="off" spellcheck="false" />
+            <button id="end-date-button" type="button" class="date-picker-button">Pick</button>
+            <input id="end-date-picker" type="date" class="date-picker-proxy" tabindex="-1" aria-hidden="true" />
+          </span>
         </label>
         <label>
           Theme

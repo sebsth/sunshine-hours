@@ -115,6 +115,14 @@ label {
   font-size: 0.94rem;
 }
 
+.date-field {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
 select, input, button {
   border: 1px solid var(--panel-border);
   border-radius: 12px;
@@ -131,6 +139,18 @@ select, input, button {
 }
 
 button { cursor: pointer; }
+
+.date-picker-button {
+  white-space: nowrap;
+}
+
+.date-picker-proxy {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 68px;
+  opacity: 0;
+  pointer-events: none;
+}
 
 .chart { min-height: 580px; }
 

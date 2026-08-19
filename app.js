@@ -20,7 +20,11 @@ const elements = {
   selectionStats: document.getElementById("selection-stats"),
   metricSelect: document.getElementById("metric-select"),
   startDate: document.getElementById("start-date"),
+  startDateButton: document.getElementById("start-date-button"),
+  startDatePicker: document.getElementById("start-date-picker"),
   endDate: document.getElementById("end-date"),
+  endDateButton: document.getElementById("end-date-button"),
+  endDatePicker: document.getElementById("end-date-picker"),
   themeSelect: document.getElementById("theme-select"),
   resetZoom: document.getElementById("reset-zoom"),
   refreshData: document.getElementById("refresh-data"),
@@ -70,6 +74,10 @@ function wireEvents() {
   elements.endDate.addEventListener("blur", onDateBlur);
   elements.startDate.addEventListener("change", applyDateInputs);
   elements.endDate.addEventListener("change", applyDateInputs);
+  elements.startDateButton.addEventListener("click", () => openDatePicker(elements.startDatePicker));
+  elements.endDateButton.addEventListener("click", () => openDatePicker(elements.endDatePicker));
+  elements.startDatePicker.addEventListener("change", () => applyPickerValue(elements.startDate, elements.startDatePicker));
+  elements.endDatePicker.addEventListener("change", () => applyPickerValue(elements.endDate, elements.endDatePicker));
   elements.themeSelect.addEventListener("change", onThemeChange);
   elements.yScale.addEventListener("input", onYScaleChange);
   elements.resetZoom.addEventListener("click", () => {
@@ -131,8 +139,11 @@ function applyDateInputs() {
   const end = normalizeDateInputValue(elements.endDate.value);
   elements.startDate.value = start;
   elements.endDate.value = end;
+  elements.startDatePicker.value = start;
+  elements.endDatePicker.value = end;
   if (start && end && start > end) {
     elements.endDate.value = start;
+    elements.endDatePicker.value = start;
   }
   state.currentStart = elements.startDate.value || null;
   state.currentEnd = elements.endDate.value || null;
@@ -388,14 +399,20 @@ function syncDateBounds() {
   const end = state.summary.date_end;
   elements.startDate.placeholder = start;
   elements.startDate.title = `${start} to ${end}`;
+  elements.startDatePicker.min = start;
+  elements.startDatePicker.max = end;
   elements.endDate.placeholder = end;
   elements.endDate.title = `${start} to ${end}`;
+  elements.endDatePicker.min = start;
+  elements.endDatePicker.max = end;
 }
 
 function syncDateInputs() {
   if (state.isEditingDateInput) return;
   elements.startDate.value = state.currentStart ?? state.summary.date_start;
   elements.endDate.value = state.currentEnd ?? state.summary.date_end;
+  elements.startDatePicker.value = elements.startDate.value;
+  elements.endDatePicker.value = elements.endDate.value;
 }
 
 function onDateBlur() {
@@ -424,6 +441,21 @@ function normalizeDateInputValue(value) {
   }
 
   return normalized;
+}
+
+function openDatePicker(picker) {
+  if (typeof picker.showPicker === "function") {
+    picker.showPicker();
+    return;
+  }
+
+  picker.focus();
+  picker.click();
+}
+
+function applyPickerValue(input, picker) {
+  input.value = picker.value;
+  applyDateInputs();
 }
 
 function hoverTemplate(metric) {
