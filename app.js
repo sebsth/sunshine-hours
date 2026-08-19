@@ -111,10 +111,13 @@ function renderPlaceSelectors() {
   elements.placeSelectors.innerHTML = state.places
     .map(
       (place) => `
-        <label class="place-chip">
-          <input type="checkbox" value="${escapeHtml(place.name)}" ${state.selectedPlaces.has(place.name) ? "checked" : ""} />
-          <span>${escapeHtml(place.name)}</span>
-        </label>
+        <div class="place-chip">
+          <label class="place-chip-toggle">
+            <input type="checkbox" value="${escapeHtml(place.name)}" ${state.selectedPlaces.has(place.name) ? "checked" : ""} />
+            <span>${escapeHtml(place.name)}</span>
+          </label>
+          ${place.can_delete ? `<button type="button" class="place-delete" data-place-id="${place.id}" data-place-name="${escapeHtml(place.name)}" aria-label="Delete ${escapeHtml(place.name)}">x</button>` : ""}
+        </div>
       `
     )
     .join("");
@@ -124,6 +127,12 @@ function renderPlaceSelectors() {
       if (input.checked) state.selectedPlaces.add(input.value);
       else state.selectedPlaces.delete(input.value);
       drawChart();
+    });
+  });
+
+  elements.placeSelectors.querySelectorAll(".place-delete").forEach((button) => {
+    button.addEventListener("click", () => {
+      deletePlace(Number(button.dataset.placeId), button.dataset.placeName);
     });
   });
 }
@@ -193,6 +202,25 @@ async function savePlace(event) {
     elements.placeStatus.textContent = `Saved ${payload.name}.`;
   } catch (error) {
     elements.placeStatus.textContent = `Save failed: ${error.message}`;
+  }
+}
+
+async function deletePlace(placeId, placeName) {
+  elements.placeStatus.textContent = `Deleting ${placeName}...`;
+  try {
+    const response = await fetch(`/api/place/${placeId}`, { method: "DELETE" });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.error || "Place delete failed");
+    }
+    await loadDataset();
+    state.selectedPlaces.delete(placeName);
+    renderSummary();
+    renderPlaceSelectors();
+    drawChart();
+    elements.placeStatus.textContent = `Deleted ${placeName}.`;
+  } catch (error) {
+    elements.placeStatus.textContent = `Delete failed: ${error.message}`;
   }
 }
 

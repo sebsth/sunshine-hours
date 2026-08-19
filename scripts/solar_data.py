@@ -19,6 +19,7 @@ ZENITH = 90.833
 DEFAULT_PLACES = [
     {"name": "Solna", "latitude": 59.36004, "longitude": 18.00086},
 ]
+DEFAULT_PLACE_NAMES = {place["name"] for place in DEFAULT_PLACES}
 
 
 def connect_db() -> sqlite3.Connection:
@@ -84,6 +85,19 @@ def ensure_place(connection: sqlite3.Connection, name: str, latitude: float, lon
     rebuild_metadata(connection)
     connection.commit()
     return place_id
+
+
+def delete_place(connection: sqlite3.Connection, place_id: int) -> None:
+    place = connection.execute("SELECT name FROM places WHERE id = ?", (place_id,)).fetchone()
+    if place is None:
+        raise LookupError("Place not found")
+    if place["name"] in DEFAULT_PLACE_NAMES:
+        raise ValueError("Default places cannot be deleted")
+
+    connection.execute("DELETE FROM solar_days WHERE place_id = ?", (place_id,))
+    connection.execute("DELETE FROM places WHERE id = ?", (place_id,))
+    rebuild_metadata(connection)
+    connection.commit()
 
 
 def rebuild_place(connection: sqlite3.Connection, place_id: int) -> None:
@@ -205,7 +219,14 @@ def get_dataset_payload() -> dict:
             seed_defaults()
             summary_row = connection.execute("SELECT value FROM metadata WHERE key = 'summary'").fetchone()
         summary = json.loads(summary_row["value"])
-        places = [dict(row) for row in connection.execute("SELECT * FROM places ORDER BY name")]
+        places = [
+            {
+                **dict(row),
+                "is_default": row["name"] in DEFAULT_PLACE_NAMES,
+                "can_delete": row["name"] not in DEFAULT_PLACE_NAMES,
+            }
+            for row in connection.execute("SELECT * FROM places ORDER BY name")
+        ]
         rows = [
             dict(row)
             for row in connection.execute(

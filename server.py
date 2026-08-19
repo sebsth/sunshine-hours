@@ -8,7 +8,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-from scripts.solar_data import connect_db, ensure_place, get_dataset_payload
+from scripts.solar_data import connect_db, delete_place, ensure_place, get_dataset_payload
 
 
 ROOT = Path(__file__).resolve().parent
@@ -59,6 +59,36 @@ class AppHandler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps({"ok": True, "summary": json.loads(result.stdout)}).encode("utf-8"))
+
+    def do_DELETE(self) -> None:
+        path = urlparse(self.path).path
+        if not path.startswith("/api/place/"):
+            self.send_error(HTTPStatus.NOT_FOUND, "Not found")
+            return
+
+        try:
+            place_id = int(path.rsplit("/", 1)[1])
+        except ValueError:
+            self.send_error(HTTPStatus.BAD_REQUEST, "Invalid place id")
+            return
+
+        try:
+            with connect_db() as connection:
+                delete_place(connection, place_id)
+        except LookupError:
+            self.send_error(HTTPStatus.NOT_FOUND, "Place not found")
+            return
+        except ValueError as error:
+            self.send_response(HTTPStatus.BAD_REQUEST)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": False, "error": str(error)}).encode("utf-8"))
+            return
+
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps({"ok": True}).encode("utf-8"))
 
     def handle_place_upsert(self) -> None:
         content_length = int(self.headers.get("Content-Length", "0"))

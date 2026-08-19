@@ -102,6 +102,36 @@ h1 {
   background: rgba(148, 163, 184, 0.08);
 }
 
+.place-chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.place-delete {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 120ms ease, color 120ms ease, background 120ms ease;
+}
+
+.place-chip:hover .place-delete,
+.place-chip:focus-within .place-delete {
+  opacity: 1;
+}
+
+.place-delete:hover,
+.place-delete:focus-visible {
+  color: var(--text);
+  background: rgba(148, 163, 184, 0.16);
+}
+
 .place-form {
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr auto;
