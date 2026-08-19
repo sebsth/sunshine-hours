@@ -1,4 +1,5 @@
 const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const dateInputPattern = /^\d{4}-\d{2}-\d{2}$/;
 
 const state = {
   rows: [],
@@ -126,8 +127,10 @@ function setDefaultRange() {
 }
 
 function applyDateInputs() {
-  const start = elements.startDate.value || null;
-  const end = elements.endDate.value || null;
+  const start = normalizeDateInputValue(elements.startDate.value);
+  const end = normalizeDateInputValue(elements.endDate.value);
+  elements.startDate.value = start;
+  elements.endDate.value = end;
   if (start && end && start > end) {
     elements.endDate.value = start;
   }
@@ -383,10 +386,10 @@ function withinRange(dateText) {
 function syncDateBounds() {
   const start = state.summary.date_start;
   const end = state.summary.date_end;
-  elements.startDate.min = start;
-  elements.startDate.max = end;
-  elements.endDate.min = start;
-  elements.endDate.max = end;
+  elements.startDate.placeholder = start;
+  elements.startDate.title = `${start} to ${end}`;
+  elements.endDate.placeholder = end;
+  elements.endDate.title = `${start} to ${end}`;
 }
 
 function syncDateInputs() {
@@ -398,6 +401,29 @@ function syncDateInputs() {
 function onDateBlur() {
   state.isEditingDateInput = false;
   syncDateInputs();
+}
+
+function normalizeDateInputValue(value) {
+  const trimmed = String(value).trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const normalized = trimmed.replace(/[./]/g, "-");
+  if (!dateInputPattern.test(normalized)) {
+    return "";
+  }
+
+  const parsed = new Date(`${normalized}T00:00:00Z`);
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  if (parsed.toISOString().slice(0, 10) !== normalized) {
+    return "";
+  }
+
+  return normalized;
 }
 
 function hoverTemplate(metric) {
